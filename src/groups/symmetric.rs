@@ -4,6 +4,7 @@ use super::*;
 
 #[macro_export]
 macro_rules! sym {
+    [@cycle; ()] => {{ $crate::groups::S::identity() }};
     [@cycle; ($($elems:literal)+)] => {{
         let cycle = [$($elems),+];
         let mut perm = ::core::array::from_fn(|i| i + 1);
@@ -24,7 +25,6 @@ macro_rules! sym {
         let mut y = $crate::groups::S::identity();
         $(
             y = y * sym![@cycle; $tt];
-            println!("{}", stringify!($tt));
         )+
         y
     }}
@@ -93,9 +93,11 @@ mod test {
 
     #[test]
     fn sym_macro() {
+        let id = sym![5; ()];
         let x: S<3> = sym![(1 2 3)];
         let y = sym![(1 2)(2 3)];
 
+        assert_eq!(id, S::identity());
         assert_eq!(x, y);
         assert_eq!(x, [2, 3, 1].into());
 

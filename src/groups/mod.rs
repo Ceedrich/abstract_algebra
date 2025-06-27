@@ -1,9 +1,11 @@
 mod cyclic;
 mod dihedral;
+mod free;
 mod symmetric;
 
 pub use cyclic::*;
 pub use dihedral::*;
+pub use free::*;
 pub use symmetric::*;
 
 pub trait GroupElement
@@ -34,6 +36,7 @@ where
 pub trait Group<E>
 where
     Self: Sized,
+    E: GroupElement,
 {
     fn identity() -> E;
     fn op(x: &E, y: &E) -> E;
