@@ -8,7 +8,7 @@
 //! use abstract_algebra::groups::{S, GroupElement};
 //! use abstract_algebra::sym;
 //!
-//! let id: S<3> = S::identity();
+//! let id: S<3> = S::id();
 //! // Empty cycles are considered to be the identity
 //! assert_eq!(id, sym![()]);
 //! // Single values are also considered to be the identity
@@ -19,7 +19,7 @@
 //! assert_eq!(sym![3; (1 2 3)], sym![(1 2)(2 3)]);
 //! // Group Operations are also implemented
 //! assert_eq!(sym![3; (1 2)] * sym![(2 3)], sym![(1 2 3)] );
-//! assert_eq!(sym![3; (1 2 3)].inverse(), sym![(1 3 2)] );
+//! assert_eq!(sym![3; (1 2 3)].inv(), sym![(1 3 2)] );
 //! ```
 //!
 //! # Group Types

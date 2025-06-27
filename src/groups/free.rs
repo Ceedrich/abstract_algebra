@@ -1,6 +1,6 @@
 use super::*;
 
-pub type F = FreeGroupElement;
+pub type F = Group<FreeGroupElement>;
 
 /// Macro used to create free groups
 ///
@@ -12,8 +12,8 @@ pub type F = FreeGroupElement;
 /// let x = free!['a' 'b'- 'c'-];
 /// let y = free!['c' 'b' 'a'-];
 ///
-/// assert_eq!(free!('b' 'a' 'a'- 'b'-), F::identity());
-/// assert_eq!(x.op(&y), F::identity())
+/// assert_eq!(free!('b' 'a' 'a'- 'b'-), F::id());
+/// assert_eq!(x.op(&y), F::id())
 /// ```
 #[macro_export]
 macro_rules! free {
@@ -57,7 +57,7 @@ pub enum Alphabet {
 }
 
 impl Alphabet {
-    fn inverse(&self) -> Self {
+    fn inv(&self) -> Self {
         match *self {
             Self::Gen(x) => Self::Inv(x),
             Self::Inv(x) => Self::Gen(x),
@@ -72,19 +72,17 @@ pub struct FreeGroupElement {
 
 impl<const M: usize> From<&[Alphabet; M]> for F {
     fn from(value: &[Alphabet; M]) -> Self {
-        let word = FreeGroup::reduce(value.into());
-        Self { word }
+        let word = FreeGroupElement::reduce(value.into());
+        Self(FreeGroupElement { word })
     }
 }
 
-pub struct FreeGroup;
-
-impl FreeGroup {
+impl FreeGroupElement {
     fn reduce(v: Vec<Alphabet>) -> Vec<Alphabet> {
         let mut reduced = Vec::new();
         for sym in v.into_iter() {
             if let Some(last) = reduced.last() {
-                if sym.inverse() == *last {
+                if sym.inv() == *last {
                     reduced.pop();
                     continue;
                 }
@@ -95,28 +93,24 @@ impl FreeGroup {
     }
 }
 
-impl Group<F> for FreeGroup {
-    fn identity() -> F {
-        F { word: vec![] }
+impl GroupElement for FreeGroupElement {
+    fn id() -> Self {
+        Self { word: vec![] }
     }
 
-    fn inverse(x: &F) -> F {
-        F {
-            word: x.word.iter().rev().map(Alphabet::inverse).collect(),
+    fn inv(&self) -> Self {
+        Self {
+            word: self.word.iter().rev().map(Alphabet::inv).collect(),
         }
     }
 
-    fn op(x: &F, y: &F) -> F {
-        let mut word = x.word.clone();
+    fn op(&self, y: &Self) -> Self {
+        let mut word = self.word.clone();
         word.extend(&y.word);
-        F {
+        FreeGroupElement {
             word: Self::reduce(word),
         }
     }
-}
-
-impl GroupElement for F {
-    type G = FreeGroup;
 }
 
 #[cfg(test)]
@@ -124,7 +118,7 @@ mod test {
     use super::*;
     #[test]
     fn free_group() {
-        let id = F::identity();
+        let id = F::id();
         let a: F = F::from(&[Alphabet::Gen(0), Alphabet::Gen(1)]);
         let b: F = F::from(&[Alphabet::Inv(1), Alphabet::Inv(0)]);
 
@@ -137,11 +131,10 @@ mod test {
                 Alphabet::Gen(1)
             ])
         );
-        assert_eq!(a.inverse(), b);
-        assert_eq!(id, a.op(&b))
+        assert_eq!(a.inv(), b);
+        assert_eq!(id, a * b);
     }
 
     #[test]
     fn free_macro() {}
 }
-

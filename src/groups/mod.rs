@@ -3,29 +3,33 @@ mod dihedral;
 mod free;
 mod symmetric;
 
+use std::ops::{Add, Deref, DerefMut, Mul};
+
 pub use cyclic::*;
 pub use dihedral::*;
 pub use free::*;
 pub use symmetric::*;
 
-pub trait GroupElement
+pub trait Abelian {}
+
+#[derive(Debug, PartialEq, Eq)]
+pub struct Group<E>(E);
+
+impl<E> Group<E>
 where
-    Self: Sized + Eq,
+    E: GroupElement,
 {
-    type G: Group<Self>;
-    fn op(&self, rhs: &Self) -> Self {
-        Self::G::op(self, rhs)
+    pub fn id() -> Self {
+        Self(E::id())
     }
-
-    fn inverse(&self) -> Self {
-        Self::G::inverse(self)
+    pub fn op(&self, other: &Self) -> Self {
+        Self(self.0.op(&other.0))
     }
-    fn identity() -> Self {
-        Self::G::identity()
+    pub fn inv(&self) -> Self {
+        Self(self.0.inv())
     }
-
-    fn pow(&self, p: usize) -> Self {
-        let mut out = Self::identity();
+    pub fn pow(&self, p: usize) -> Self {
+        let mut out = Self::id();
         for _ in 0..p {
             out = out.op(self);
         }
@@ -33,12 +37,52 @@ where
     }
 }
 
-pub trait Group<E>
+impl<E> Deref for Group<E> {
+    type Target = E;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+impl<E> DerefMut for Group<E> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+impl<E> Clone for Group<E>
 where
-    Self: Sized,
+    E: Clone,
+{
+    fn clone(&self) -> Self {
+        Self(self.0.clone())
+    }
+}
+impl<E> Copy for Group<E> where E: Copy {}
+
+impl<E> Add for Group<E>
+where
+    E: GroupElement + Abelian,
+{
+    type Output = Self;
+    fn add(self, rhs: Self) -> Self::Output {
+        Self(self.0.op(&rhs.0))
+    }
+}
+
+impl<E> Mul for Group<E>
+where
     E: GroupElement,
 {
-    fn identity() -> E;
-    fn op(x: &E, y: &E) -> E;
-    fn inverse(x: &E) -> E;
+    type Output = Self;
+    fn mul(self, rhs: Self) -> Self::Output {
+        Self(self.0.op(&rhs.0))
+    }
+}
+
+pub trait GroupElement
+where
+    Self: Sized + Eq,
+{
+    fn op(&self, rhs: &Self) -> Self;
+    fn inv(&self) -> Self;
+    fn id() -> Self;
 }

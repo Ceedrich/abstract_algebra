@@ -1,13 +1,4 @@
-use std::ops::Mul;
-
-use super::{Group, GroupElement};
-
-impl<const N: usize> Mul for D<N> {
-    type Output = Self;
-    fn mul(self, rhs: Self) -> Self::Output {
-        self.op(&rhs)
-    }
-}
+use super::*;
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct DihedralGroupElement<const N: usize> {
@@ -15,52 +6,46 @@ pub struct DihedralGroupElement<const N: usize> {
     rotation: usize,
 }
 
-type D<const N: usize> = DihedralGroupElement<N>;
+pub type D<const N: usize> = Group<DihedralGroupElement<N>>;
 
-pub struct DihedralGroup<const N: usize>;
-
-impl<const N: usize> GroupElement for D<N> {
-    type G = DihedralGroup<N>;
-}
-
-impl<const N: usize> D<N> {
-    pub fn new(flipped: bool, rotation: usize) -> Self {
-        D { flipped, rotation }
-    }
-}
-
-impl<const N: usize> Group<D<N>> for DihedralGroup<N> {
-    fn identity() -> D<N> {
-        DihedralGroupElement {
+impl<const N: usize> GroupElement for DihedralGroupElement<N> {
+    fn id() -> Self {
+        Self {
             flipped: false,
             rotation: 0,
         }
     }
-    fn inverse(x: &D<N>) -> D<N> {
-        if x.flipped {
-            D {
+    fn inv(&self) -> Self {
+        if self.flipped {
+            Self {
                 flipped: true,
-                rotation: x.rotation,
+                rotation: self.rotation,
             }
         } else {
-            D {
+            Self {
                 flipped: false,
-                rotation: (N - x.rotation) % N,
+                rotation: (N - self.rotation) % N,
             }
         }
     }
-    fn op(x: &D<N>, y: &D<N>) -> D<N> {
+    fn op(&self, y: &Self) -> Self {
         if y.flipped {
-            D {
-                flipped: x.flipped ^ y.flipped,
-                rotation: (N + y.rotation - x.rotation) % N,
+            Self {
+                flipped: self.flipped ^ y.flipped,
+                rotation: (N + y.rotation - self.rotation) % N,
             }
         } else {
-            D {
-                flipped: x.flipped,
-                rotation: (x.rotation + y.rotation) % N,
+            Self {
+                flipped: self.flipped,
+                rotation: (self.rotation + y.rotation) % N,
             }
         }
+    }
+}
+
+impl<const N: usize> D<N> {
+    pub fn new(flipped: bool, rotation: usize) -> Self {
+        Self(DihedralGroupElement { flipped, rotation })
     }
 }
 
@@ -69,14 +54,13 @@ mod test {
     use super::*;
     #[test]
     fn dihedral_group() {
-        let id = D::<5>::identity();
+        let id = D::<5>::id();
         let tau = D::<5>::new(true, 0);
         let sigma = D::<5>::new(false, 1);
         assert_eq!(sigma.pow(3), sigma * sigma * sigma);
         assert_eq!(tau * tau, id);
         assert_eq!(sigma.pow(5), id);
-        assert_eq!(tau * sigma * tau, sigma.inverse());
-        assert_eq!(tau * sigma.pow(3) * tau, sigma.inverse().pow(3));
+        assert_eq!(tau * sigma * tau, sigma.inv());
+        assert_eq!(tau * sigma.pow(3) * tau, sigma.inv().pow(3));
     }
 }
-
