@@ -4,7 +4,7 @@ use super::*;
 
 #[macro_export]
 macro_rules! sym {
-    ( ($( $elems:literal )+) ) => {{
+    [@cycle; ($($elems:literal)+)] => {{
         let cycle = [$($elems),+];
         let mut perm = ::core::array::from_fn(|i| i + 1);
 
@@ -16,14 +16,18 @@ macro_rules! sym {
         }
         $crate::groups::S::from(perm)
     }};
-    ($( $inner:tt )+) => {{
+    [ $N:literal ; $( $tt:tt )+] => {{
+        let out: $crate::groups::S::<$N> = sym![$($tt)+];
+        out
+    }};
+    [$($tt:tt)+] => {{
         let mut y = $crate::groups::S::identity();
         $(
-            y = y * sym![$inner];
+            y = y * sym![@cycle; $tt];
+            println!("{}", stringify!($tt));
         )+
         y
-    }};
-
+    }}
 }
 
 pub type S<const N: usize> = SymmetricGroupElement<N>;
@@ -95,7 +99,7 @@ mod test {
         assert_eq!(x, y);
         assert_eq!(x, [2, 3, 1].into());
 
-        // assert_eq!(sym![(1 2)(2 3)], sym![(1 2 3)]);
+        assert_eq!(sym![3; (1 2 3)], sym![(1 2)(2 3)]);
 
         assert_eq!(sym![(1 2 3 4 5 6 7 8)], [2, 3, 4, 5, 6, 7, 8, 1].into());
 
