@@ -1,33 +1,5 @@
 use super::*;
 
-#[macro_export]
-macro_rules! sym {
-    [@cycle; ()] => {{ $crate::groups::S::id() }};
-    [@cycle; ($($elems:literal)+)] => {{
-        let cycle = [$($elems),+];
-        let mut perm = ::core::array::from_fn(|i| i + 1);
-
-        let m = cycle.len();
-        for i in 0..m {
-            let from = cycle[i % m] - 1;
-            let to = cycle[(i + 1) % m];
-            perm[from] = to;
-        }
-        $crate::groups::S::from(perm)
-    }};
-    [ $N:literal ; $( $tt:tt )+] => {{
-        let out: $crate::groups::S::<$N> = sym![$($tt)+];
-        out
-    }};
-    [$($tt:tt)+] => {{
-        let mut y = $crate::groups::S::id();
-        $(
-            y = y * sym![@cycle; $tt];
-        )+
-        y
-    }}
-}
-
 pub type S<const N: usize> = Group<SymmetricGroupElement<N>>;
 
 impl<const N: usize> From<[usize; N]> for S<N> {
@@ -41,17 +13,21 @@ pub struct SymmetricGroupElement<const N: usize> {
     perm: [usize; N],
 }
 
+impl<const N: usize> BinaryOperation for SymmetricGroupElement<N> {
+    fn op(&self, y: &Self) -> Self {
+        Self {
+            perm: y.perm.map(|i| self.perm[i - 1]),
+        }
+    }
+}
+
 impl<const N: usize> GroupElement for SymmetricGroupElement<N> {
     fn id() -> Self {
         Self {
             perm: core::array::from_fn(|i| i + 1),
         }
     }
-    fn op(&self, y: &Self) -> Self {
-        Self {
-            perm: y.perm.map(|i| self.perm[i - 1]),
-        }
-    }
+
     fn inv(&self) -> Self {
         Self {
             perm: self.perm.map(|i| self.perm[i - 1]),

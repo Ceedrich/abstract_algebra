@@ -93,6 +93,16 @@ impl FreeGroupElement {
     }
 }
 
+impl BinaryOperation for FreeGroupElement {
+    fn op(&self, y: &Self) -> Self {
+        let mut word = self.word.clone();
+        word.extend(&y.word);
+        FreeGroupElement {
+            word: Self::reduce(word),
+        }
+    }
+}
+
 impl GroupElement for FreeGroupElement {
     fn id() -> Self {
         Self { word: vec![] }
@@ -101,14 +111,6 @@ impl GroupElement for FreeGroupElement {
     fn inv(&self) -> Self {
         Self {
             word: self.word.iter().rev().map(Alphabet::inv).collect(),
-        }
-    }
-
-    fn op(&self, y: &Self) -> Self {
-        let mut word = self.word.clone();
-        word.extend(&y.word);
-        FreeGroupElement {
-            word: Self::reduce(word),
         }
     }
 }

@@ -3,30 +3,37 @@
 //!
 //! # Example Usage
 //!
-//! Let's say, you need to use a symmetric [group](groups::Group) of order 3:
 //! ```rust
-//! use abstract_algebra::groups::{S, GroupElement};
-//! use abstract_algebra::sym;
+//! use abstract_algebra::primitives::Permutation;
+//! use abstract_algebra::perm;
+//! use abstract_algebra::ops::{Identity, Invertible};
 //!
-//! let id: S<3> = S::id();
+//! let id: Permutation<3> = Permutation::id();
 //! // Empty cycles are considered to be the identity
-//! assert_eq!(id, sym![()]);
+//! assert_eq!(id, perm![()]);
 //! // Single values are also considered to be the identity
-//! assert_eq!(id, sym![(3)]);
+//! assert_eq!(id, perm![(3)]);
 //! // You can combine cycles
-//! assert_eq!(id, sym![(1 2)(1 2)]);
+//! assert_eq!(id, perm![(1 2)(1 2)]);
 //! // If the group is ambiguous, you can specify the size of the symmetric group
-//! assert_eq!(sym![3; (1 2 3)], sym![(1 2)(2 3)]);
+//! assert_eq!(perm![3; (1 2 3)], perm![(1 2)(2 3)]);
 //! // Group Operations are also implemented
-//! assert_eq!(sym![3; (1 2)] * sym![(2 3)], sym![(1 2 3)] );
-//! assert_eq!(sym![3; (1 2 3)].inv(), sym![(1 3 2)] );
+//! assert_eq!(perm![3; (1 2)] * perm![(2 3)], perm![(1 2 3)] );
+//! assert_eq!(perm![3; (1 2 3)].inv(), perm![(1 3 2)] );
 //! ```
 //!
 //! # Group Types
 //!
 //! The following group types exist:
-//! - [symmetric](groups::S): Macro to create elements: `sym![(1 2)(3 4)]`
-//! - [cyclic](groups::C)
-//! - [free](groups::F): Macro to create elements: `free!['a' 'b' 'a'- 'b' 'a']`
+//! - [symmetric](group::S): Macro to create elements: `perm![(1 2)(3 4)]`
+//! - [cyclic](group::C)
+//! - [free](group::F): Macro to create elements: `word!['a' 'b' 'a'- 'b' 'a']`
 
-pub mod groups;
+pub(crate) mod private {
+    pub trait Seal: Default {}
+}
+
+pub mod group;
+pub mod ops;
+pub mod primitives;
+pub mod rings;

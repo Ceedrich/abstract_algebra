@@ -5,8 +5,6 @@ pub type C<const N: usize> = Group<CyclicGroupElement<N>>;
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct CyclicGroupElement<const N: usize>(usize);
 
-impl<const N: usize> Abelian for CyclicGroupElement<N> {}
-
 impl<const N: usize> CyclicGroupElement<N> {
     fn new(value: usize) -> Self {
         Self(value % N)
@@ -19,12 +17,15 @@ impl<const N: usize> From<usize> for C<N> {
     }
 }
 
+impl<const N: usize> BinaryOperation for CyclicGroupElement<N> {
+    fn op(&self, y: &Self) -> Self {
+        Self((self.0 + y.0) % N)
+    }
+}
+
 impl<const N: usize> GroupElement for CyclicGroupElement<N> {
     fn inv(&self) -> Self {
         Self((N - self.0) % N)
-    }
-    fn op(&self, y: &Self) -> Self {
-        Self((self.0 + y.0) % N)
     }
     fn id() -> CyclicGroupElement<N> {
         Self(0)

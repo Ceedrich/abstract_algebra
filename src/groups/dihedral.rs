@@ -8,26 +8,7 @@ pub struct DihedralGroupElement<const N: usize> {
 
 pub type D<const N: usize> = Group<DihedralGroupElement<N>>;
 
-impl<const N: usize> GroupElement for DihedralGroupElement<N> {
-    fn id() -> Self {
-        Self {
-            flipped: false,
-            rotation: 0,
-        }
-    }
-    fn inv(&self) -> Self {
-        if self.flipped {
-            Self {
-                flipped: true,
-                rotation: self.rotation,
-            }
-        } else {
-            Self {
-                flipped: false,
-                rotation: (N - self.rotation) % N,
-            }
-        }
-    }
+impl<const N: usize> BinaryOperation for DihedralGroupElement<N> {
     fn op(&self, y: &Self) -> Self {
         if y.flipped {
             Self {
@@ -43,6 +24,28 @@ impl<const N: usize> GroupElement for DihedralGroupElement<N> {
     }
 }
 
+impl<const N: usize> GroupElement for DihedralGroupElement<N> {
+    fn id() -> Self {
+        Self {
+            flipped: false,
+            rotation: 0,
+        }
+    }
+
+    fn inv(&self) -> Self {
+        if self.flipped {
+            Self {
+                flipped: true,
+                rotation: self.rotation,
+            }
+        } else {
+            Self {
+                flipped: false,
+                rotation: (N - self.rotation) % N,
+            }
+        }
+    }
+}
 impl<const N: usize> D<N> {
     pub fn new(flipped: bool, rotation: usize) -> Self {
         Self(DihedralGroupElement { flipped, rotation })
