@@ -36,6 +36,6 @@ pub(crate) mod private {
 pub mod group;
 pub mod ops;
 pub mod primitives;
+pub mod ring;
 pub mod rings;
 mod utils;
-

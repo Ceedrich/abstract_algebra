@@ -55,14 +55,6 @@ where
             _commutativity: Default::default(),
         }
     }
-}
-
-impl<E, K, C> Group<E, K, C>
-where
-    E: GroupOperation<K, C>,
-    K: OperationKind,
-    C: OperationCommutativity,
-{
     pub fn inv(&self) -> Self {
         Self::new(self.e.inv())
     }
@@ -84,13 +76,5 @@ where
     fn add(self, rhs: Self) -> Self::Output {
         let sum = BinaryOperation::<Addition, Commutative, Associative>::op(&self.e, &rhs.e);
         Self::new(sum)
-    }
-}
-
-#[cfg(test)]
-mod test {
-    #[test]
-    fn blub() {
-        // let x: CMult<5> = Group::id();
     }
 }
