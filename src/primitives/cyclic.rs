@@ -1,5 +1,5 @@
 use crate::{
-    group::{C, CMult},
+    groups::{C, CMult},
     ops::{
         Addition, Associative, BinaryOperation, Commutative, Identity, Invertible, Multiplication,
     },
@@ -75,7 +75,7 @@ impl<const N: usize> Invertible<Addition> for CyclicNumber<N> {
 
 #[cfg(test)]
 mod test {
-    use crate::group::{C, CMult};
+    use super::*;
 
     #[test]
     fn addition() {
@@ -102,7 +102,7 @@ mod test {
 
         assert_eq!(two.inv(), three);
         assert_eq!(three.inv(), two);
-        assert_eq!(two.op(&three), id);
+        assert_eq!(two * three, id);
 
         let a: CMult<97> = 17.into();
         let b = 40.into();

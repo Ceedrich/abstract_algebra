@@ -33,9 +33,8 @@ pub(crate) mod private {
     pub trait Seal {}
 }
 
-pub mod group;
+pub mod groups;
 pub mod ops;
 pub mod primitives;
-pub mod ring;
 pub mod rings;
 mod utils;

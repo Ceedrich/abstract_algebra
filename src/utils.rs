@@ -11,4 +11,3 @@ pub const fn is_prime(n: usize) -> bool {
     }
     true
 }
-

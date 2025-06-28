@@ -1,7 +1,7 @@
 use std::ops::{Add, Mul};
 
 use crate::{
-    group::GroupOperation,
+    groups::GroupOperation,
     ops::{
         Addition, BinaryOperation, Commutative, Identity, Multiplication, OperationCommutativity,
     },
