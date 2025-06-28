@@ -1,6 +1,6 @@
 use crate::private::Seal;
 
-pub trait OperationAssociativity: Seal {}
+pub trait OperationAssociativity: Seal + Default {}
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub struct Associative;
@@ -12,7 +12,7 @@ pub struct NonAssociative;
 impl Seal for NonAssociative {}
 impl OperationAssociativity for NonAssociative {}
 
-pub trait OperationCommutativity: Seal {}
+pub trait OperationCommutativity: Seal + Default {}
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub struct Commutative;
@@ -24,7 +24,7 @@ pub struct NonCommutative;
 impl Seal for NonCommutative {}
 impl OperationCommutativity for NonCommutative {}
 
-pub trait OperationKind: Seal {}
+pub trait OperationKind: Seal + Default {}
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub struct Multiplication;

@@ -30,10 +30,12 @@
 //! - [free](group::F): Macro to create elements: `word!['a' 'b' 'a'- 'b' 'a']`
 
 pub(crate) mod private {
-    pub trait Seal: Default {}
+    pub trait Seal {}
 }
 
 pub mod group;
 pub mod ops;
 pub mod primitives;
 pub mod rings;
+mod utils;
+

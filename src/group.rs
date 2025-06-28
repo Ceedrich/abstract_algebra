@@ -8,12 +8,35 @@ use crate::{
     primitives::{CyclicNumber, Permutation, Word},
 };
 
+pub type CMult<const N: usize> = Group<CyclicNumber<N>, Multiplication, Commutative>;
+
 pub type C<const N: usize> = Group<CyclicNumber<N>, Addition, Commutative>;
 pub type S<const N: usize> = Group<Permutation<N>, Multiplication, NonCommutative>;
 pub type F<T> = Group<Word<T>, Multiplication, NonCommutative>;
 
+pub trait GroupOperation<K, C>:
+    BinaryOperation<K, C, Associative> + Identity<K> + Invertible<K>
+where
+    K: OperationKind,
+    C: OperationCommutativity,
+{
+}
+
+impl<E, K, C> GroupOperation<K, C> for E
+where
+    E: BinaryOperation<K, C, Associative> + Identity<K> + Invertible<K>,
+    K: OperationKind,
+    C: OperationCommutativity,
+{
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Group<E, K, C> {
+pub struct Group<E, K, C>
+where
+    E: GroupOperation<K, C>,
+    K: OperationKind,
+    C: OperationCommutativity,
+{
     e: E,
     _kind: K,
     _commutativity: C,
@@ -21,6 +44,7 @@ pub struct Group<E, K, C> {
 
 impl<E, K, C> Group<E, K, C>
 where
+    E: GroupOperation<K, C>,
     K: OperationKind,
     C: OperationCommutativity,
 {
@@ -35,7 +59,7 @@ where
 
 impl<E, K, C> Group<E, K, C>
 where
-    E: BinaryOperation<K, C, Associative> + Identity<K> + Invertible<K>,
+    E: GroupOperation<K, C>,
     K: OperationKind,
     C: OperationCommutativity,
 {
@@ -52,13 +76,21 @@ where
     }
 }
 
-impl<E, C> Add for Group<E, Addition, C>
+impl<E> Add for Group<E, Addition, Commutative>
 where
-    E: BinaryOperation<Addition, C, Associative> + Identity<Addition> + Invertible<Addition>,
-    C: OperationCommutativity,
+    E: GroupOperation<Addition, Commutative>,
 {
     type Output = Self;
     fn add(self, rhs: Self) -> Self::Output {
-        self.op(&rhs)
+        let sum = BinaryOperation::<Addition, Commutative, Associative>::op(&self.e, &rhs.e);
+        Self::new(sum)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    #[test]
+    fn blub() {
+        // let x: CMult<5> = Group::id();
     }
 }
