@@ -1,7 +1,8 @@
-use std::ops::{Add, Mul};
+use std::ops::{Add, AddAssign, Mul, MulAssign};
 
 use crate::{
     groups::GroupOperation,
+    impl_op, impl_op_assign,
     ops::{
         Addition, BinaryOperation, Commutative, Identity, Multiplication, OperationCommutativity,
     },
@@ -43,30 +44,6 @@ where
     }
 }
 
-impl<E, C> Add for Ring<E, C>
-where
-    E: RingOperation<C>,
-    C: OperationCommutativity,
-{
-    type Output = Self;
-    fn add(self, rhs: Self) -> Self::Output {
-        let sum = <E as BinaryOperation<Addition, Commutative>>::op(&self.e, &rhs.e);
-        Self::new(sum)
-    }
-}
-
-impl<E, C> Mul for Ring<E, C>
-where
-    E: RingOperation<C>,
-    C: OperationCommutativity,
-{
-    type Output = Self;
-    fn mul(self, rhs: Self) -> Self::Output {
-        let prod = <E as BinaryOperation<Multiplication, C>>::op(&self.e, &rhs.e);
-        Self::new(prod)
-    }
-}
-
 pub trait RingOperation<C>:
     GroupOperation<Addition, Commutative>
     + BinaryOperation<Multiplication, C>
@@ -85,6 +62,35 @@ where
 {
 }
 
+impl<E, C> Mul<Self> for &Ring<E, C>
+where
+    E: RingOperation<C>,
+    C: OperationCommutativity,
+{
+    type Output = Ring<E, C>;
+    fn mul(self, rhs: Self) -> Self::Output {
+        let prod = <E as BinaryOperation<Multiplication, C>>::op(&self.e, &rhs.e);
+        Ring::new(prod)
+    }
+}
+impl<E, C> Add<Self> for &Ring<E, C>
+where
+    E: RingOperation<C>,
+    C: OperationCommutativity,
+{
+    type Output = Ring<E, C>;
+    fn add(self, rhs: Self) -> Self::Output {
+        let sum = <E as BinaryOperation<Addition, Commutative>>::op(&self.e, &rhs.e);
+        Ring::new(sum)
+    }
+}
+
+impl_op!(impl<E, C> Add ; add : Ring<E, C> ; where E: RingOperation<C>, C: OperationCommutativity);
+impl_op!(impl<E, C> Mul ; mul : Ring<E, C> ; where E: RingOperation<C>, C: OperationCommutativity);
+
+impl_op_assign!(impl<E, C> AddAssign ; add ; add_assign : Ring<E, C> ; where E: RingOperation<C>, C: OperationCommutativity);
+impl_op_assign!(impl<E, C> MulAssign ; mul ; mul_assign : Ring<E, C> ; where E: RingOperation<C>, C: OperationCommutativity);
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -94,7 +100,10 @@ mod test {
         let one: Z<4> = Z::one();
         let zero = Z::zero();
 
-        assert_eq!(one + one + one + one, zero);
+        let two = one + one;
+
+        assert_eq!(two + one, one + one + one);
+        assert_eq!(one + one + two, zero);
         assert_eq!(one * zero, zero);
         assert_eq!(one + zero, one);
     }

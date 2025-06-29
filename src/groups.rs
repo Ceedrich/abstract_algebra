@@ -1,6 +1,7 @@
 use std::ops::{Add, AddAssign, Mul, MulAssign};
 
 use crate::{
+    impl_op, impl_op_assign,
     ops::{
         Addition, Associative, BinaryOperation, Commutative, Identity, Invertible, Multiplication,
         NonCommutative, OperationCommutativity, OperationKind,
@@ -93,126 +94,31 @@ where
     }
 }
 
-impl<E> Add<&Group<E, Addition, Commutative>> for &Group<E, Addition, Commutative>
+impl<E> Add<Self> for &Group<E, Addition, Commutative>
 where
     E: GroupOperation<Addition, Commutative>,
 {
     type Output = Group<E, Addition, Commutative>;
-    fn add(self, rhs: &Group<E, Addition, Commutative>) -> Self::Output {
+    fn add(self, rhs: Self) -> Self::Output {
         let sum = BinaryOperation::<Addition, Commutative, Associative>::op(&self.e, &rhs.e);
         Group::new(sum)
     }
 }
 
-impl<E> Add for Group<E, Addition, Commutative>
-where
-    E: GroupOperation<Addition, Commutative>,
-{
-    type Output = Self;
-    fn add(self, rhs: Self) -> Self::Output {
-        &self + &rhs
-    }
-}
+impl_op! { impl<E> Add ; add : Group<E, Addition, Commutative> ; where E: GroupOperation<Addition, Commutative> }
+impl_op_assign! { impl<E> AddAssign ; add ; add_assign : Group<E, Addition, Commutative> ; where E: GroupOperation<Addition, Commutative> }
 
-impl<E> Add<Group<E, Addition, Commutative>> for &Group<E, Addition, Commutative>
-where
-    E: GroupOperation<Addition, Commutative>,
-{
-    type Output = Group<E, Addition, Commutative>;
-    fn add(self, rhs: Group<E, Addition, Commutative>) -> Self::Output {
-        self + &rhs
-    }
-}
-
-impl<E> Add<&Group<E, Addition, Commutative>> for Group<E, Addition, Commutative>
-where
-    E: GroupOperation<Addition, Commutative>,
-{
-    type Output = Group<E, Addition, Commutative>;
-    fn add(self, rhs: &Group<E, Addition, Commutative>) -> Self::Output {
-        &self + rhs
-    }
-}
-
-impl<E> AddAssign<&Group<E, Addition, Commutative>> for Group<E, Addition, Commutative>
-where
-    E: GroupOperation<Addition, Commutative>,
-{
-    fn add_assign(&mut self, rhs: &Group<E, Addition, Commutative>) {
-        *self = &*self + rhs;
-    }
-}
-
-impl<E> AddAssign<Group<E, Addition, Commutative>> for Group<E, Addition, Commutative>
-where
-    E: GroupOperation<Addition, Commutative>,
-{
-    fn add_assign(&mut self, rhs: Group<E, Addition, Commutative>) {
-        *self = &*self + rhs;
-    }
-}
-
-impl<E, C> Mul<&Group<E, Multiplication, C>> for &Group<E, Multiplication, C>
+impl<E, C> Mul<Self> for &Group<E, Multiplication, C>
 where
     E: GroupOperation<Multiplication, C>,
     C: OperationCommutativity,
 {
     type Output = Group<E, Multiplication, C>;
-    fn mul(self, rhs: &Group<E, Multiplication, C>) -> Self::Output {
+    fn mul(self, rhs: Self) -> Self::Output {
         let sum = BinaryOperation::<Multiplication, C, Associative>::op(&self.e, &rhs.e);
         Group::new(sum)
     }
 }
 
-impl<E, C> Mul for Group<E, Multiplication, C>
-where
-    E: GroupOperation<Multiplication, C>,
-    C: OperationCommutativity,
-{
-    type Output = Self;
-    fn mul(self, rhs: Self) -> Self::Output {
-        &self * &rhs
-    }
-}
-
-impl<E, C> Mul<Group<E, Multiplication, C>> for &Group<E, Multiplication, C>
-where
-    E: GroupOperation<Multiplication, C>,
-    C: OperationCommutativity,
-{
-    type Output = Group<E, Multiplication, C>;
-    fn mul(self, rhs: Group<E, Multiplication, C>) -> Self::Output {
-        self * &rhs
-    }
-}
-
-impl<E, C> Mul<&Group<E, Multiplication, C>> for Group<E, Multiplication, C>
-where
-    E: GroupOperation<Multiplication, C>,
-    C: OperationCommutativity,
-{
-    type Output = Group<E, Multiplication, C>;
-    fn mul(self, rhs: &Group<E, Multiplication, C>) -> Self::Output {
-        &self * rhs
-    }
-}
-
-impl<E, C> MulAssign<&Group<E, Multiplication, C>> for Group<E, Multiplication, C>
-where
-    E: GroupOperation<Multiplication, C>,
-    C: OperationCommutativity,
-{
-    fn mul_assign(&mut self, rhs: &Group<E, Multiplication, C>) {
-        *self = &*self * rhs;
-    }
-}
-
-impl<E, C> MulAssign<Group<E, Multiplication, C>> for Group<E, Multiplication, C>
-where
-    E: GroupOperation<Multiplication, C>,
-    C: OperationCommutativity,
-{
-    fn mul_assign(&mut self, rhs: Group<E, Multiplication, C>) {
-        *self = &*self * rhs;
-    }
-}
+impl_op! { impl<E, C> Mul ; mul : Group<E, Multiplication, C> ; where E: GroupOperation<Multiplication, C>, C: OperationCommutativity }
+impl_op_assign! { impl<E, C> MulAssign ; mul ; mul_assign: Group<E, Multiplication, C> ; where E: GroupOperation<Multiplication, C>, C: OperationCommutativity }
