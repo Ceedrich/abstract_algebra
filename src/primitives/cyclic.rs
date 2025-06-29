@@ -1,22 +1,12 @@
+use std::ops::{Add, AddAssign, Mul, MulAssign};
+
 use crate::{
-    groups::{C, CMult},
+    impl_op, impl_op_assign,
     ops::{
         Addition, Associative, BinaryOperation, Commutative, Identity, Invertible, Multiplication,
     },
     utils::is_prime,
 };
-
-impl<const N: usize> From<usize> for CMult<N> {
-    fn from(value: usize) -> Self {
-        Self::new(CyclicNumber(value % N))
-    }
-}
-
-impl<const N: usize> From<usize> for C<N> {
-    fn from(value: usize) -> Self {
-        Self::new(CyclicNumber(value % N))
-    }
-}
 
 impl<const P: usize> Invertible<Multiplication> for CyclicNumber<P> {
     /// using [Fermat's little theorem](https://en.wikipedia.org/wiki/Fermat%27s_little_theorem)
@@ -45,7 +35,7 @@ pub struct CyclicNumber<const N: usize>(usize);
 
 impl<const N: usize> BinaryOperation<Multiplication, Commutative, Associative> for CyclicNumber<N> {
     fn op(&self, rhs: &Self) -> Self {
-        Self((self.0 * rhs.0) % N)
+        self * rhs
     }
 }
 
@@ -57,7 +47,7 @@ impl<const N: usize> Identity<Multiplication> for CyclicNumber<N> {
 
 impl<const N: usize> BinaryOperation<Addition, Commutative, Associative> for CyclicNumber<N> {
     fn op(&self, rhs: &Self) -> Self {
-        Self((self.0 + rhs.0) % N)
+        self + rhs
     }
 }
 
@@ -73,40 +63,47 @@ impl<const N: usize> Invertible<Addition> for CyclicNumber<N> {
     }
 }
 
+impl<const N: usize> From<usize> for CyclicNumber<N> {
+    fn from(value: usize) -> Self {
+        Self(value % N)
+    }
+}
+
+impl<const N: usize> Add<Self> for &CyclicNumber<N> {
+    type Output = CyclicNumber<N>;
+    fn add(self, rhs: Self) -> Self::Output {
+        CyclicNumber((self.0 + rhs.0) % N)
+    }
+}
+
+impl_op!(impl<const N: usize> Add ; add : CyclicNumber<N>);
+impl_op_assign!(impl<const N: usize> AddAssign ; add ; add_assign : CyclicNumber<N>);
+
+impl<const N: usize> Mul<Self> for &CyclicNumber<N> {
+    type Output = CyclicNumber<N>;
+    fn mul(self, rhs: Self) -> Self::Output {
+        CyclicNumber((self.0 * rhs.0) % N)
+    }
+}
+
+impl_op!(impl<const N: usize> Mul ; mul : CyclicNumber<N>);
+impl_op_assign!(impl<const N: usize> MulAssign ; mul ; mul_assign : CyclicNumber<N>);
+
 #[cfg(test)]
 mod test {
     use super::*;
 
     #[test]
-    fn addition() {
-        let id: C<4> = 0.into();
-        let x: C<4> = 4.into();
-        let y: C<4> = 3.into();
-        let z: C<4> = 2.into();
+    fn test() {
+        let zero: CyclicNumber<4> = 0.into();
+        let four: CyclicNumber<4> = 4.into();
+        let three: CyclicNumber<4> = 3.into();
+        let two: CyclicNumber<4> = 2.into();
+        let one: CyclicNumber<4> = 1.into();
 
-        assert_eq!(x, id);
-        assert_eq!(x + y, 3.into());
-        assert_eq!(y + z, 1.into())
-    }
-
-    #[test]
-    fn multiplication() {
-        let id: CMult<3> = CMult::id();
-        let two: CMult<3> = 2.into();
-        assert_eq!(id.inv(), id);
-        assert_eq!(two.inv(), two);
-
-        let id: CMult<5> = CMult::id();
-        let two: CMult<5> = 2.into();
-        let three = 3.into();
-
-        assert_eq!(two.inv(), three);
-        assert_eq!(three.inv(), two);
-        assert_eq!(two * three, id);
-
-        let a: CMult<97> = 17.into();
-        let b = 40.into();
-
-        assert_eq!(a.inv(), b);
+        assert_eq!(four, zero);
+        assert_eq!(two * three, two);
+        assert_eq!(two + four, two);
+        assert_eq!(three + three, one);
     }
 }

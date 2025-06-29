@@ -9,11 +9,9 @@ use crate::{
     primitives::{CyclicNumber, Permutation, Word},
 };
 
-pub type CMult<const N: usize> = Group<CyclicNumber<N>, Multiplication, Commutative>;
-
-pub type C<const N: usize> = Group<CyclicNumber<N>, Addition, Commutative>;
-pub type S<const N: usize> = Group<Permutation<N>, Multiplication, NonCommutative>;
-pub type F<T> = Group<Word<T>, Multiplication, NonCommutative>;
+pub type Cyclic<const N: usize> = Group<CyclicNumber<N>, Addition, Commutative>;
+pub type Symmetric<const N: usize> = Group<Permutation<N>, Multiplication, NonCommutative>;
+pub type Free<T> = Group<Word<T>, Multiplication, NonCommutative>;
 
 pub trait GroupOperation<K, C>:
     BinaryOperation<K, C, Associative> + Identity<K> + Invertible<K>

@@ -3,6 +3,7 @@ use std::ops::{Add, AddAssign, Mul, MulAssign};
 use crate::{
     groups::GroupOperation,
     impl_op, impl_op_assign,
+    monoid::MonoidOperation,
     ops::{
         Addition, BinaryOperation, Commutative, Identity, Multiplication, OperationCommutativity,
     },
@@ -45,9 +46,7 @@ where
 }
 
 pub trait RingOperation<C>:
-    GroupOperation<Addition, Commutative>
-    + BinaryOperation<Multiplication, C>
-    + Identity<Multiplication>
+    GroupOperation<Addition, Commutative> + MonoidOperation<Multiplication, C>
 where
     C: OperationCommutativity,
 {
@@ -55,9 +54,7 @@ where
 
 impl<E, C> RingOperation<C> for E
 where
-    E: GroupOperation<Addition, Commutative>
-        + BinaryOperation<Multiplication, C>
-        + Identity<Multiplication>,
+    E: GroupOperation<Addition, Commutative> + MonoidOperation<Multiplication, C>,
     C: OperationCommutativity,
 {
 }
