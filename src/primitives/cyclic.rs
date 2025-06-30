@@ -104,6 +104,6 @@ mod test {
         assert_eq!(four, zero);
         assert_eq!(two * three, two);
         assert_eq!(two + four, two);
-        assert_eq!(three + three, one);
+        assert_eq!(three + two, one);
     }
 }
