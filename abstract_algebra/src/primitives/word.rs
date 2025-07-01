@@ -1,4 +1,4 @@
-use std::ops::Mul;
+use abstract_algebra_macros::Operations;
 
 use crate::ops::{BinaryOperation, Identity, Invertible, Multiplication};
 
@@ -20,22 +20,15 @@ where
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Word<T>(Vec<Alphabet<T>>);
-
-impl<T> Mul for Word<T>
+#[derive(Debug, Clone, PartialEq, Eq, Operations)]
+#[operations(Multiplication)]
+pub struct Word<T>(Vec<Alphabet<T>>)
 where
-    T: Clone + PartialEq,
-{
-    type Output = Self;
-    fn mul(self, rhs: Self) -> Self::Output {
-        self.op(&rhs)
-    }
-}
+    T: Copy + PartialEq;
 
 impl<T> Word<T>
 where
-    T: Clone + PartialEq,
+    T: Copy + PartialEq,
 {
     fn reduce(v: Vec<Alphabet<T>>) -> Vec<Alphabet<T>> {
         let mut reduced = Vec::new();
@@ -54,7 +47,7 @@ where
 
 impl<T, const N: usize> From<&[Alphabet<T>; N]> for Word<T>
 where
-    T: Clone + PartialEq,
+    T: Copy + PartialEq,
 {
     fn from(value: &[Alphabet<T>; N]) -> Self {
         let word = Self::reduce(value.into());
@@ -64,7 +57,7 @@ where
 
 impl<T> BinaryOperation<Multiplication> for Word<T>
 where
-    T: Clone + PartialEq,
+    T: Copy + PartialEq,
 {
     fn op(&self, y: &Self) -> Self {
         let mut word = self.0.clone();
@@ -73,7 +66,10 @@ where
     }
 }
 
-impl<T> Identity<Multiplication> for Word<T> {
+impl<T> Identity<Multiplication> for Word<T>
+where
+    T: Copy + PartialEq,
+{
     fn id() -> Self {
         Self(vec![])
     }
@@ -81,7 +77,7 @@ impl<T> Identity<Multiplication> for Word<T> {
 
 impl<T> Invertible<Multiplication> for Word<T>
 where
-    T: Clone,
+    T: Copy + PartialEq,
 {
     fn inv(&self) -> Self {
         Self(self.0.iter().rev().map(Alphabet::inv).collect())

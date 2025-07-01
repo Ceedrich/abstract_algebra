@@ -1,4 +1,4 @@
 [workspace]
 resolver = "3"
 
-members = ["abstract_algebra"]
+members = ["abstract_algebra", "abstract_algebra_macros"]

@@ -1,15 +1,9 @@
-use std::ops::Mul;
+use abstract_algebra_macros::Operations;
 
 use crate::ops::*;
 
-impl<const N: usize> Mul for Permutation<N> {
-    type Output = Self;
-    fn mul(self, rhs: Self) -> Self::Output {
-        self.op(&rhs)
-    }
-}
-
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Operations)]
+#[operations(Multiplication)]
 pub struct Permutation<const N: usize>([usize; N]);
 
 impl<const N: usize> From<[usize; N]> for Permutation<N> {

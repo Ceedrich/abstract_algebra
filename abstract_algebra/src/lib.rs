@@ -40,3 +40,7 @@ pub mod ops;
 pub mod primitives;
 pub mod rings;
 mod utils;
+
+pub use abstract_algebra_macros::*;
+
+extern crate self as abstract_algebra;

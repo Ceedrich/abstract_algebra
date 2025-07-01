@@ -1,11 +1,9 @@
-use std::ops::{Mul, MulAssign};
+use abstract_algebra_macros::Operations;
 
-use crate::{
-    impl_op, impl_op_assign,
-    ops::{BinaryOperation, Identity, Invertible, Multiplication},
-};
+use crate::ops::{BinaryOperation, Identity, Invertible, Multiplication};
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Operations)]
+#[operations(Multiplication)]
 pub struct DihedralElement<const N: usize> {
     flipped: bool,
     rotation: usize,
@@ -18,8 +16,18 @@ impl<const N: usize> DihedralElement<N> {
 }
 
 impl<const N: usize> BinaryOperation<Multiplication> for DihedralElement<N> {
-    fn op(&self, y: &Self) -> Self {
-        self * y
+    fn op(&self, rhs: &Self) -> Self {
+        if rhs.flipped {
+            DihedralElement {
+                flipped: self.flipped ^ rhs.flipped,
+                rotation: (N + rhs.rotation - self.rotation) % N,
+            }
+        } else {
+            DihedralElement {
+                flipped: self.flipped,
+                rotation: (self.rotation + rhs.rotation) % N,
+            }
+        }
     }
 }
 
@@ -47,26 +55,6 @@ impl<const N: usize> Invertible<Multiplication> for DihedralElement<N> {
         }
     }
 }
-
-impl<const N: usize> Mul<Self> for &DihedralElement<N> {
-    type Output = DihedralElement<N>;
-    fn mul(self, rhs: Self) -> Self::Output {
-        if rhs.flipped {
-            DihedralElement {
-                flipped: self.flipped ^ rhs.flipped,
-                rotation: (N + rhs.rotation - self.rotation) % N,
-            }
-        } else {
-            DihedralElement {
-                flipped: self.flipped,
-                rotation: (self.rotation + rhs.rotation) % N,
-            }
-        }
-    }
-}
-
-impl_op!(impl<const N: usize> Mul ; mul : DihedralElement<N>);
-impl_op_assign!(impl<const N: usize> MulAssign ; mul ; mul_assign : DihedralElement<N>);
 
 #[cfg(test)]
 mod test {

@@ -1,7 +1,6 @@
-use std::ops::{Add, AddAssign, Mul, MulAssign};
+use abstract_algebra_macros::Operations;
 
 use crate::{
-    impl_op, impl_op_assign,
     ops::{
         Addition, Associative, BinaryOperation, Commutative, Identity, Invertible, Multiplication,
     },
@@ -30,12 +29,13 @@ impl<const P: usize> Invertible<Multiplication> for CyclicNumber<P> {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Operations)]
+#[operations(Addition, Multiplication)]
 pub struct CyclicNumber<const N: usize>(usize);
 
 impl<const N: usize> BinaryOperation<Multiplication, Commutative, Associative> for CyclicNumber<N> {
     fn op(&self, rhs: &Self) -> Self {
-        self * rhs
+        CyclicNumber((self.0 * rhs.0) % N)
     }
 }
 
@@ -47,7 +47,7 @@ impl<const N: usize> Identity<Multiplication> for CyclicNumber<N> {
 
 impl<const N: usize> BinaryOperation<Addition, Commutative, Associative> for CyclicNumber<N> {
     fn op(&self, rhs: &Self) -> Self {
-        self + rhs
+        CyclicNumber((self.0 + rhs.0) % N)
     }
 }
 
@@ -68,26 +68,6 @@ impl<const N: usize> From<usize> for CyclicNumber<N> {
         Self(value % N)
     }
 }
-
-impl<const N: usize> Add<Self> for &CyclicNumber<N> {
-    type Output = CyclicNumber<N>;
-    fn add(self, rhs: Self) -> Self::Output {
-        CyclicNumber((self.0 + rhs.0) % N)
-    }
-}
-
-impl_op!(impl<const N: usize> Add ; add : CyclicNumber<N>);
-impl_op_assign!(impl<const N: usize> AddAssign ; add ; add_assign : CyclicNumber<N>);
-
-impl<const N: usize> Mul<Self> for &CyclicNumber<N> {
-    type Output = CyclicNumber<N>;
-    fn mul(self, rhs: Self) -> Self::Output {
-        CyclicNumber((self.0 * rhs.0) % N)
-    }
-}
-
-impl_op!(impl<const N: usize> Mul ; mul : CyclicNumber<N>);
-impl_op_assign!(impl<const N: usize> MulAssign ; mul ; mul_assign : CyclicNumber<N>);
 
 #[cfg(test)]
 mod test {

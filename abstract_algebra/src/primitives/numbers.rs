@@ -1,7 +1,9 @@
-use std::ops::{Add, AddAssign};
+use abstract_algebra_macros::Operations;
 
 use crate::ops::{Addition, BinaryOperation, Commutative, Identity, Invertible, Multiplication};
 
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Operations)]
+#[operations(Addition, Multiplication)]
 pub struct Natural(usize);
 
 impl From<usize> for Natural {
@@ -34,13 +36,8 @@ impl Identity<Multiplication> for Natural {
     }
 }
 
-impl Add<Self> for &Natural {
-    type Output = Natural;
-    fn add(self, rhs: Self) -> Self::Output {
-        Natural(self.0 + rhs.0)
-    }
-}
-
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Operations)]
+#[operations(Addition, Multiplication)]
 pub struct Integer(isize);
 
 impl BinaryOperation<Addition, Commutative> for Integer {
@@ -87,6 +84,12 @@ mod test {
     fn monoid() {
         let _: Monoid<Natural, Multiplication, Commutative> = Monoid::new(Natural(1));
         let _: Monoid<Natural, Addition, Commutative> = Monoid::new(Natural(1));
+
+        let one = Natural(1);
+        let two = Natural(2);
+        assert_eq!(one * one, one);
+        assert_eq!(one + one, two);
+        assert_eq!(two * two, two + two);
     }
 
     #[test]
