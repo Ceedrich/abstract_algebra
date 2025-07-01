@@ -30,10 +30,13 @@
 //! - [free](group::F): Macro to create elements: `word!['a' 'b' 'a'- 'b' 'a']`
 
 pub(crate) mod private {
+    use core::fmt;
+
     pub trait Seal {}
+    pub trait Marker: Clone + Copy + Default + fmt::Debug + PartialEq + Eq {}
 }
 
-pub mod field;
+pub mod fields;
 pub mod groups;
 pub mod monoid;
 pub mod ops;

@@ -1,11 +1,6 @@
 use std::ops::{Add, AddAssign, Mul, MulAssign};
 
-use crate::{
-    impl_op, impl_op_assign,
-    ops::{
-        Addition, BinaryOperation, Commutative, Identity, Multiplication, OperationCommutativity,
-    },
-};
+use crate::{impl_op, impl_op_assign, ops::OperationCommutativity};
 
 use super::{Factorability, Integrality, NonIntegral, NonUFD, RingOperation};
 
@@ -40,13 +35,11 @@ where
     }
 
     pub fn one() -> Self {
-        let one = <E as Identity<Multiplication>>::id();
-        Self::new(one)
+        Self::new(E::one())
     }
 
     pub fn zero() -> Self {
-        let zero = <E as Identity<Addition>>::id();
-        Self::new(zero)
+        Self::new(E::zero())
     }
 }
 
@@ -59,8 +52,7 @@ where
 {
     type Output = Ring<E, C, I, F>;
     fn mul(self, rhs: Self) -> Self::Output {
-        let prod = <E as BinaryOperation<Multiplication, C>>::op(&self.e, &rhs.e);
-        Ring::new(prod)
+        Ring::new(self.e.mul(&rhs.e))
     }
 }
 impl<E, C, I, F> Add<Self> for &Ring<E, C, I, F>
@@ -72,8 +64,7 @@ where
 {
     type Output = Ring<E, C, I, F>;
     fn add(self, rhs: Self) -> Self::Output {
-        let sum = <E as BinaryOperation<Addition, Commutative>>::op(&self.e, &rhs.e);
-        Ring::new(sum)
+        Ring::new(self.e.add(&rhs.e))
     }
 }
 
