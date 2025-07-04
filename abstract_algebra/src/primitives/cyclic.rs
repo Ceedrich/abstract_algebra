@@ -30,7 +30,7 @@ impl<const P: usize> Invertible<Multiplication> for CyclicNumber<P> {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Operations)]
-#[operations(Addition, Multiplication)]
+#[operations("Addition", "Multiplication")]
 pub struct CyclicNumber<const N: usize>(usize);
 
 impl<const N: usize> BinaryOperation<Multiplication, Commutative, Associative> for CyclicNumber<N> {

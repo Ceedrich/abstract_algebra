@@ -1,5 +1,7 @@
 use std::ops::{Add, AddAssign, Mul, MulAssign};
 
+use abstract_algebra_macros::Blub;
+
 use crate::{
     impl_op, impl_op_assign,
     ops::{
@@ -29,7 +31,13 @@ where
 {
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Blub)]
+#[blub(
+    accessor(.e : E),
+    bin_op(BinaryOperation<K, C, Associative>),
+    inv(Invertible<K>),
+    id(Identity<K>),
+)]
 pub struct Group<E, K, C>
 where
     E: GroupOperation<K, C>,

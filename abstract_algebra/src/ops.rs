@@ -47,8 +47,8 @@ impl OperationKind for Addition {}
 
 pub trait BinaryOperation<
     Type: OperationKind,
-    Commutativity: OperationCommutativity = NonCommutative,
-    Associativity: OperationAssociativity = Associative,
+    Commutativity: OperationCommutativity,
+    Associativity: OperationAssociativity,
 >: MathObject
 {
     fn op(&self, rhs: &Self) -> Self;

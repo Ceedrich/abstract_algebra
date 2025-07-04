@@ -1,3 +1,5 @@
+use abstract_algebra_macros::Operations;
+
 use crate::{
     ops::{
         Addition, Associative, BinaryOperation, Commutative, Identity, Invertible, Multiplication,
@@ -5,7 +7,8 @@ use crate::{
     rings::{Factorability, Integral, RingOperation},
 };
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Eq, Operations)]
+#[operations("Addition", "Multiplication")]
 pub struct FractionField<E, F>
 where
     E: RingOperation<Commutative, Integral, F> + PartialEq + Clone,

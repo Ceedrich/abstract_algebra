@@ -3,14 +3,15 @@ use crate::{
     groups::GroupOperation,
     monoid::MonoidOperation,
     ops::{
-        Addition, BinaryOperation, Commutative, Identity, Multiplication, OperationCommutativity,
+        Addition, BinaryOperation, Commutative, Identity, Invertible, Multiplication,
+        OperationCommutativity,
     },
     primitives::Integer,
     private::{Marker, Seal},
 };
 
-pub type Z = Ring<Integer, Integral, UFD>;
-pub type Q = Ring<FractionField<Integer, UFD>, Integral, UFD>;
+pub type Z = Ring<Integer, Commutative, Integral, UFD>;
+pub type Q = Ring<FractionField<Integer, UFD>, Commutative, Integral, UFD>;
 
 mod ring;
 pub use ring::*;
@@ -30,6 +31,10 @@ where
         <Self as Identity<Multiplication>>::id()
     }
 
+    fn neg(&self) -> Self {
+        <Self as Invertible<Addition>>::inv(self)
+    }
+
     fn add(&self, rhs: &Self) -> Self {
         <Self as BinaryOperation<Addition, Commutative, _>>::op(self, rhs)
     }
@@ -37,15 +42,6 @@ where
     fn mul(&self, rhs: &Self) -> Self {
         <Self as BinaryOperation<Multiplication, C, _>>::op(self, rhs)
     }
-}
-
-impl<E, C, I, F> RingOperation<C, I, F> for E
-where
-    E: GroupOperation<Addition, Commutative> + MonoidOperation<Multiplication, C>,
-    C: OperationCommutativity,
-    I: Integrality,
-    F: Factorability,
-{
 }
 
 pub trait Integrality: Seal + Marker {}

@@ -1,9 +1,11 @@
 use abstract_algebra_macros::Operations;
 
-use crate::ops::{BinaryOperation, Identity, Invertible, Multiplication};
+use crate::ops::{
+    Associative, BinaryOperation, Identity, Invertible, Multiplication, NonCommutative,
+};
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Operations)]
-#[operations(Multiplication)]
+#[operations("Multiplication")]
 pub struct DihedralElement<const N: usize> {
     flipped: bool,
     rotation: usize,
@@ -15,7 +17,9 @@ impl<const N: usize> DihedralElement<N> {
     }
 }
 
-impl<const N: usize> BinaryOperation<Multiplication> for DihedralElement<N> {
+impl<const N: usize> BinaryOperation<Multiplication, NonCommutative, Associative>
+    for DihedralElement<N>
+{
     fn op(&self, rhs: &Self) -> Self {
         if rhs.flipped {
             DihedralElement {

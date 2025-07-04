@@ -1,9 +1,11 @@
-use std::ops::{Add, AddAssign, Mul, MulAssign};
+use abstract_algebra_macros::{Blub, Operations};
 
 use crate::{
     groups::GroupOperation,
-    impl_op, impl_op_assign,
-    ops::{Addition, BinaryOperation, Commutative, Identity, Multiplication},
+    ops::{
+        Addition, Associative, BinaryOperation, Commutative, Identity, Invertible, Multiplication,
+    },
+    rings::{Integral, RingOperation, UFD},
 };
 
 pub trait FieldOperation:
@@ -16,6 +18,18 @@ impl<E> FieldOperation for E where
 {
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Blub, Operations)]
+#[operations("Multiplication", "Addition")]
+#[blub(
+    accessor(.0: E),
+    bin_op(
+        BinaryOperation<Addition, Commutative, Associative>,
+        BinaryOperation<Multiplication, Commutative, Associative>,
+    ),
+    inv(Invertible<Addition>, Invertible<Multiplication>),
+    id(Identity<Addition>, Identity<Multiplication>),
+    ring(RingOperation<Commutative, Integral, UFD>)
+)]
 pub struct Field<E>(E)
 where
     E: FieldOperation;
@@ -39,30 +53,40 @@ where
     }
 }
 
-impl<E> Add<Self> for &Field<E>
-where
-    E: FieldOperation,
-{
-    type Output = Field<E>;
-    fn add(self, rhs: Self) -> Self::Output {
-        let sum = <E as BinaryOperation<Addition, Commutative>>::op(&self.0, &rhs.0);
-        Field(sum)
+#[cfg(test)]
+mod test {
+    use crate::{
+        fields::{Field, FieldOperation},
+        ops::OperationCommutativity,
+        primitives::CyclicNumber,
+        rings::{Factorability, Integrality, RingOperation},
+    };
+
+    #[test]
+    fn field_ops() {
+        fn field<T: FieldOperation>(_x: T) {}
+        fn ring<T, C, I, F>(_x: T)
+        where
+            T: RingOperation<C, I, F>,
+            C: OperationCommutativity,
+            I: Integrality,
+            F: Factorability,
+        {
+        }
+
+        let x: Field<CyclicNumber<5>> = Field::new(2.into());
+
+        field(x);
+        ring(x);
+    }
+
+    #[test]
+    fn operations() {
+        let five: Field<CyclicNumber<5>> = Field::new(5.into());
+        let two: Field<CyclicNumber<5>> = Field::new(2.into());
+        let three: Field<CyclicNumber<5>> = Field::new(3.into());
+
+        assert_eq!(two * five, three * five);
+        assert_eq!(two + two + two + two, three);
     }
 }
-
-impl_op!(impl<E> Add ; add : Field<E> ; where E: FieldOperation);
-impl_op_assign!(impl<E> AddAssign ; add ; add_assign: Field<E> ; where E: FieldOperation);
-
-impl<E> Mul<Self> for &Field<E>
-where
-    E: FieldOperation,
-{
-    type Output = Field<E>;
-    fn mul(self, rhs: Self) -> Self::Output {
-        let prod = <E as BinaryOperation<Multiplication, Commutative>>::op(&self.0, &rhs.0);
-        Field(prod)
-    }
-}
-
-impl_op!(impl<E> Mul ; mul : Field<E> ; where E: FieldOperation);
-impl_op_assign!(impl<E> MulAssign ; mul ; mul_assign: Field<E> ; where E: FieldOperation);

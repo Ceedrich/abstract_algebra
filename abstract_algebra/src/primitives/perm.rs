@@ -3,7 +3,7 @@ use abstract_algebra_macros::Operations;
 use crate::ops::*;
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Operations)]
-#[operations(Multiplication)]
+#[operations("Multiplication")]
 pub struct Permutation<const N: usize>([usize; N]);
 
 impl<const N: usize> From<[usize; N]> for Permutation<N> {
@@ -12,7 +12,7 @@ impl<const N: usize> From<[usize; N]> for Permutation<N> {
     }
 }
 
-impl<const N: usize> BinaryOperation<Multiplication> for Permutation<N> {
+impl<const N: usize> BinaryOperation<Multiplication, NonCommutative, Associative> for Permutation<N> {
     fn op(&self, y: &Self) -> Self {
         Self(y.0.map(|i| self.0[i - 1]))
     }

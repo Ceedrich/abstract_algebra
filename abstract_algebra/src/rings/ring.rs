@@ -1,11 +1,22 @@
-use std::ops::{Add, AddAssign, Mul, MulAssign};
+use abstract_algebra_macros::{Blub, Operations};
 
-use crate::{impl_op, impl_op_assign, ops::OperationCommutativity};
+use crate::ops::{Addition, Associative, BinaryOperation, Commutative, Identity, Invertible, Multiplication, OperationCommutativity};
 
-use super::{Factorability, Integrality, NonIntegral, NonUFD, RingOperation};
+use super::{Factorability, Integrality, RingOperation};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Ring<E, C, I = NonIntegral, F = NonUFD>
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Blub, Operations)]
+#[blub(
+    accessor(.e: E), 
+    bin_op(
+        BinaryOperation<Addition, Commutative, Associative>, 
+        BinaryOperation<Multiplication, C, Associative>,
+    ),
+    inv(Invertible<Addition>),
+    id(Identity<Addition>, Identity<Multiplication>),
+    ring(RingOperation<C, I, F>)
+)]
+#[operations("Multiplication", "Addition")]
+pub struct Ring<E, C, I, F>
 where
     E: RingOperation<C, I, F>,
     C: OperationCommutativity,
@@ -43,33 +54,24 @@ where
     }
 }
 
-impl<E, C, I, F> Mul<Self> for &Ring<E, C, I, F>
-where
-    E: RingOperation<C, I, F>,
-    C: OperationCommutativity,
-    I: Integrality,
-    F: Factorability,
-{
-    type Output = Ring<E, C, I, F>;
-    fn mul(self, rhs: Self) -> Self::Output {
-        Ring::new(self.e.mul(&rhs.e))
+#[cfg(test)]
+mod test {
+    use crate::{ops::OperationCommutativity, rings::{Factorability, Integrality, RingOperation, Z}};
+
+    #[test]
+    fn blub() {
+        fn test<T, C, I, F>(_op: T) where 
+            T: RingOperation<C, I, F>,
+            C: OperationCommutativity,
+            I: Integrality,
+            F: Factorability,
+        { }
+
+        test(Z::new(2.into()));
+
+        let two: Z = Z::new(2.into());
+        let four = Z::new(4.into());
+
+        assert_eq!(two + two, four);
     }
 }
-impl<E, C, I, F> Add<Self> for &Ring<E, C, I, F>
-where
-    E: RingOperation<C, I, F>,
-    C: OperationCommutativity,
-    I: Integrality,
-    F: Factorability,
-{
-    type Output = Ring<E, C, I, F>;
-    fn add(self, rhs: Self) -> Self::Output {
-        Ring::new(self.e.add(&rhs.e))
-    }
-}
-
-impl_op!(impl<E, C, I, F> Add ; add : Ring<E, C, I, F> ; where E: RingOperation<C, I, F>, C: OperationCommutativity, I: Integrality, F: Factorability);
-impl_op!(impl<E, C, I, F> Mul ; mul : Ring<E, C, I, F> ; where E: RingOperation<C, I, F>, C: OperationCommutativity, I: Integrality, F: Factorability);
-
-impl_op_assign!(impl<E, C, I, F> AddAssign ; add ; add_assign : Ring<E, C, I, F> ; where E: RingOperation<C, I, F>, C: OperationCommutativity, I: Integrality, F: Factorability);
-impl_op_assign!(impl<E, C, I, F> MulAssign ; mul ; mul_assign : Ring<E, C, I, F> ; where E: RingOperation<C, I, F>, C: OperationCommutativity, I: Integrality, F: Factorability);

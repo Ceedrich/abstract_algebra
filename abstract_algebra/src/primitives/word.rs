@@ -1,7 +1,7 @@
 use abstract_algebra_macros::Operations;
 
 use crate::{
-    ops::{BinaryOperation, Identity, Invertible, Multiplication},
+    ops::{Associative, BinaryOperation, Identity, Invertible, Multiplication, NonCommutative},
     utils::MathObject,
 };
 
@@ -24,7 +24,7 @@ where
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Operations)]
-#[operations(Multiplication)]
+#[operations("Multiplication")]
 pub struct Word<T>(Vec<Alphabet<T>>)
 where
     T: Copy + MathObject;
@@ -36,11 +36,11 @@ where
     fn reduce(v: Vec<Alphabet<T>>) -> Vec<Alphabet<T>> {
         let mut reduced = Vec::new();
         for sym in v.into_iter() {
-            if let Some(last) = reduced.last() {
-                if sym.inv() == *last {
-                    reduced.pop();
-                    continue;
-                }
+            if let Some(last) = reduced.last()
+                && sym.inv() == *last
+            {
+                reduced.pop();
+                continue;
             }
             reduced.push(sym);
         }
@@ -58,7 +58,7 @@ where
     }
 }
 
-impl<T> BinaryOperation<Multiplication> for Word<T>
+impl<T> BinaryOperation<Multiplication, NonCommutative, Associative> for Word<T>
 where
     T: Copy + MathObject,
 {
