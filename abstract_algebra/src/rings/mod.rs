@@ -73,3 +73,49 @@ impl Seal for NonUniqueFactorisationDomain {}
 impl Marker for NonUniqueFactorisationDomain {}
 impl Factorability for NonUniqueFactorisationDomain {}
 pub type NonUFD = UniqueFactorisationDomain;
+
+#[cfg(test)]
+pub fn test_ring_axioms<E, C, I, F>(elems: &[E])
+where
+    E: RingOperation<C, I, F>,
+    C: OperationCommutativity,
+    I: Integrality,
+    F: Factorability,
+{
+    for elems in elems.windows(3) {
+        let a = &elems[0];
+        let b = &elems[1];
+        let c = &elems[2];
+
+        assert_eq!(
+            a.mul(&b.add(c)),
+            a.mul(b).add(&a.mul(c)),
+            "a(b + c) = ab + ac"
+        );
+        assert_eq!(
+            a.add(b).mul(c),
+            a.mul(c).add(&b.mul(c)),
+            "(a + b)c = ac + bc"
+        );
+    }
+}
+
+#[cfg(test)]
+pub fn test_integrability<E, C, F>(non_zero_elems: &[E])
+where
+    E: RingOperation<C, Integral, F> + core::fmt::Debug,
+    C: OperationCommutativity,
+    F: Factorability,
+{
+    for e in non_zero_elems {
+        if e == &E::zero() {
+            panic!("Only non-zero elements should be passed into this function, given: {e:?}")
+        }
+    }
+    for elems in non_zero_elems.windows(2) {
+        let a = &elems[0];
+        let b = &elems[0];
+        assert_ne!(a.mul(b), E::zero());
+        assert_ne!(b.mul(a), E::zero());
+    }
+}

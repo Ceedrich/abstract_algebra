@@ -36,11 +36,11 @@ where
     fn reduce(v: Vec<Alphabet<T>>) -> Vec<Alphabet<T>> {
         let mut reduced = Vec::new();
         for sym in v.into_iter() {
-            if let Some(last) = reduced.last()
-                && sym.inv() == *last
-            {
-                reduced.pop();
-                continue;
+            if let Some(last) = reduced.last() {
+                if sym.inv() == *last {
+                    reduced.pop();
+                    continue;
+                }
             }
             reduced.push(sym);
         }

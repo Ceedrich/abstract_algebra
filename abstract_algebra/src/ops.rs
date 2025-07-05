@@ -61,3 +61,33 @@ pub trait Invertible<Type: OperationKind>: MathObject {
 pub trait Identity<Type: OperationKind>: MathObject {
     fn id() -> Self;
 }
+
+#[cfg(test)]
+pub fn test_accociativity<T, K, C>(elems: &[T])
+where
+    T: BinaryOperation<K, C, Associative>,
+    K: OperationKind,
+    C: OperationCommutativity,
+{
+    for elems in elems.windows(3) {
+        let a = &elems[0];
+        let b = &elems[1];
+        let c = &elems[2];
+        assert_eq!(a.op(b).op(c), a.op(&b.op(c)), "(a * b) * c = a * (b * c)");
+    }
+}
+
+#[cfg(test)]
+pub fn test_commutativity<T, K, A>(elems: &[T])
+where
+    T: BinaryOperation<K, Commutative, A>,
+    K: OperationKind,
+    A: OperationAssociativity,
+{
+    for elems in elems.windows(2) {
+        let a = &elems[0];
+        let b = &elems[1];
+
+        assert_eq!(a.op(b), b.op(a), "ab = ba");
+    }
+}

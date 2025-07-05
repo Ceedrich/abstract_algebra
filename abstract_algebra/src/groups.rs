@@ -21,6 +21,20 @@ where
     K: OperationKind,
     C: OperationCommutativity,
 {
+    fn pow(&self, n: isize) -> Self {
+        let mut x = Self::id();
+        if n > 0 {
+            for _ in 0..n {
+                x = x.op(self);
+            }
+        } else if n < 0 {
+            let inv = self.inv();
+            for _ in 0..n {
+                x = x.op(&inv)
+            }
+        }
+        x
+    }
 }
 
 impl<E, K, C> GroupOperation<K, C> for E
@@ -75,18 +89,7 @@ where
     }
 
     pub fn pow(&self, n: isize) -> Self {
-        let mut x = Self::id();
-        if n > 0 {
-            for _ in 0..n {
-                x = x.op(self);
-            }
-        } else if n < 0 {
-            let inv = self.inv();
-            for _ in 0..n {
-                x = x.op(&inv)
-            }
-        }
-        x
+        Self::new(self.e.pow(n))
     }
 }
 
@@ -128,3 +131,31 @@ where
 
 impl_op! { impl<E, C> Mul ; mul : Group<E, Multiplication, C> ; where E: GroupOperation<Multiplication, C>, C: OperationCommutativity }
 impl_op_assign! { impl<E, C> MulAssign ; mul ; mul_assign: Group<E, Multiplication, C> ; where E: GroupOperation<Multiplication, C>, C: OperationCommutativity }
+
+#[cfg(test)]
+pub fn test_group_axioms<G, K, C>(elems: &[G])
+where
+    G: GroupOperation<K, C>,
+    K: OperationKind,
+    C: OperationCommutativity,
+{
+    for elems in elems.windows(2) {
+        let a = &elems[0];
+        let b = &elems[1];
+        assert_eq!(
+            a.op(b).inv(),
+            b.inv().op(&a.inv()),
+            "(ab)^(-1) = b^(-1)a^(-1)"
+        );
+        assert_eq!(
+            b.op(a).inv(),
+            a.inv().op(&b.inv()),
+            "(ba)^(-1) = a^(-1)b^(-1)"
+        );
+    }
+
+    for a in elems {
+        assert_eq!(a.op(&a.inv()), G::id(), "a * a^(-1) = id");
+        assert_eq!(a.inv().op(a), G::id(), "a^(-1) * a = id");
+    }
+}
