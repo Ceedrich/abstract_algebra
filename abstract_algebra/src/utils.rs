@@ -1,6 +1,3 @@
-pub trait MathObject: std::fmt::Debug + PartialEq + Clone + Sized {}
-impl<T> MathObject for T where T: std::fmt::Debug + PartialEq + Clone + Sized {}
-
 pub const fn is_prime(n: usize) -> bool {
     if n < 2 {
         return false;

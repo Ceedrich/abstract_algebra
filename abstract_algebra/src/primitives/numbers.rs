@@ -1,14 +1,8 @@
-use abstract_algebra_macros::{Blub, Operations};
-
-use crate::{
-    ops::{
-        Addition, Associative, BinaryOperation, Commutative, Identity, Invertible, Multiplication,
-    },
-    rings::{Integral, RingOperation, UFD},
+use crate::ops::{
+    Addition, Associativity, BinOp, Commutativity, Identity, Invertible, Multiplication,
 };
 
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Operations)]
-#[operations("Addition", "Multiplication")]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub struct Natural(usize);
 
 impl From<usize> for Natural {
@@ -17,13 +11,18 @@ impl From<usize> for Natural {
     }
 }
 
-impl BinaryOperation<Addition, Commutative, Associative> for Natural {
+impl Associativity<Multiplication> for Natural {}
+impl Associativity<Addition> for Natural {}
+impl Commutativity<Multiplication> for Natural {}
+impl Commutativity<Addition> for Natural {}
+
+impl BinOp<Addition> for Natural {
     fn op(&self, rhs: &Self) -> Self {
         Self(self.0 + rhs.0)
     }
 }
 
-impl BinaryOperation<Multiplication, Commutative, Associative> for Natural {
+impl BinOp<Multiplication> for Natural {
     fn op(&self, rhs: &Self) -> Self {
         Self(self.0 * rhs.0)
     }
@@ -41,12 +40,7 @@ impl Identity<Multiplication> for Natural {
     }
 }
 
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Operations, Blub)]
-#[blub(
-    accessor(.0: isize),
-    ring(RingOperation<Commutative, Integral, UFD>)
-)]
-#[operations("Addition", "Multiplication")]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub struct Integer(isize);
 
 impl From<isize> for Integer {
@@ -55,13 +49,18 @@ impl From<isize> for Integer {
     }
 }
 
-impl BinaryOperation<Addition, Commutative, Associative> for Integer {
+impl Associativity<Addition> for Integer {}
+impl Associativity<Multiplication> for Integer {}
+impl Commutativity<Addition> for Integer {}
+impl Commutativity<Multiplication> for Integer {}
+
+impl BinOp<Addition> for Integer {
     fn op(&self, rhs: &Self) -> Self {
         Self(self.0 + rhs.0)
     }
 }
 
-impl BinaryOperation<Multiplication, Commutative, Associative> for Integer {
+impl BinOp<Multiplication> for Integer {
     fn op(&self, rhs: &Self) -> Self {
         Self(self.0 * rhs.0)
     }
@@ -88,17 +87,20 @@ impl Identity<Multiplication> for Integer {
 #[cfg(test)]
 mod test {
     use crate::{
-        monoid::Monoid,
-        ops::{Addition, Commutative, Multiplication},
-        rings::{Integral, Ring, UFD},
+        ops::{Addition, Multiplication},
+        structures::{Monoid, Ring},
     };
 
     use super::{Integer, Natural};
 
     #[test]
     fn monoid() {
-        let _: Monoid<Natural, Multiplication, Commutative> = Monoid::new(Natural(1));
-        let _: Monoid<Natural, Addition, Commutative> = Monoid::new(Natural(1));
+        fn _f() -> impl Monoid<Multiplication> {
+            Natural(1)
+        }
+        fn _g() -> impl Monoid<Addition> {
+            Natural(1)
+        }
 
         let one = Natural(1);
         let two = Natural(2);
@@ -109,6 +111,8 @@ mod test {
 
     #[test]
     fn ring() {
-        let _: Ring<Integer, Commutative, Integral, UFD> = Ring::new(Integer(1));
+        fn _f() -> impl Ring {
+            Integer(1)
+        }
     }
 }

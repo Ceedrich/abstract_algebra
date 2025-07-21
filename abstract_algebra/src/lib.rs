@@ -36,13 +36,9 @@ pub(crate) mod private {
     pub trait Marker: Clone + Copy + Default + fmt::Debug + PartialEq + Eq {}
 }
 
-pub mod actions;
-pub mod fields;
-pub mod groups;
-pub mod monoid;
 pub mod ops;
 pub mod primitives;
-pub mod rings;
+pub mod structures;
 mod utils;
 
 pub use abstract_algebra_macros::*;

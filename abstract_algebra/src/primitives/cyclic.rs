@@ -1,9 +1,7 @@
 use abstract_algebra_macros::Operations;
 
 use crate::{
-    ops::{
-        Addition, Associative, BinaryOperation, Commutative, Identity, Invertible, Multiplication,
-    },
+    ops::{Addition, Associativity, BinOp, Commutativity, Identity, Invertible, Multiplication},
     utils::is_prime,
 };
 
@@ -30,10 +28,14 @@ impl<const P: usize> Invertible<Multiplication> for CyclicNumber<P> {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Operations)]
-#[operations("Addition", "Multiplication")]
 pub struct CyclicNumber<const N: usize>(usize);
 
-impl<const N: usize> BinaryOperation<Multiplication, Commutative, Associative> for CyclicNumber<N> {
+impl<const N: usize> Associativity<Addition> for CyclicNumber<N> {}
+impl<const N: usize> Associativity<Multiplication> for CyclicNumber<N> {}
+impl<const N: usize> Commutativity<Addition> for CyclicNumber<N> {}
+impl<const N: usize> Commutativity<Multiplication> for CyclicNumber<N> {}
+
+impl<const N: usize> BinOp<Multiplication> for CyclicNumber<N> {
     fn op(&self, rhs: &Self) -> Self {
         CyclicNumber((self.0 * rhs.0) % N)
     }
@@ -45,7 +47,7 @@ impl<const N: usize> Identity<Multiplication> for CyclicNumber<N> {
     }
 }
 
-impl<const N: usize> BinaryOperation<Addition, Commutative, Associative> for CyclicNumber<N> {
+impl<const N: usize> BinOp<Addition> for CyclicNumber<N> {
     fn op(&self, rhs: &Self) -> Self {
         CyclicNumber((self.0 + rhs.0) % N)
     }
@@ -71,6 +73,8 @@ impl<const N: usize> From<usize> for CyclicNumber<N> {
 
 #[cfg(test)]
 mod test {
+    use crate::structures::Ring;
+
     use super::*;
 
     #[test]
@@ -82,8 +86,8 @@ mod test {
         let one: CyclicNumber<4> = 1.into();
 
         assert_eq!(four, zero);
-        assert_eq!(two * three, two);
-        assert_eq!(two + four, two);
-        assert_eq!(three + two, one);
+        assert_eq!(two.mul(&three), two);
+        assert_eq!(two.add(&four), two);
+        assert_eq!(three.add(&two), one);
     }
 }

@@ -1,11 +1,6 @@
-use abstract_algebra_macros::Operations;
+use crate::ops::{Associativity, BinOp, Identity, Invertible, Multiplication};
 
-use crate::ops::{
-    Associative, BinaryOperation, Identity, Invertible, Multiplication, NonCommutative,
-};
-
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Operations)]
-#[operations("Multiplication")]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct DihedralElement<const N: usize> {
     flipped: bool,
     rotation: usize,
@@ -16,10 +11,9 @@ impl<const N: usize> DihedralElement<N> {
         Self { flipped, rotation }
     }
 }
+impl<const N: usize> Associativity<Multiplication> for DihedralElement<N> {}
 
-impl<const N: usize> BinaryOperation<Multiplication, NonCommutative, Associative>
-    for DihedralElement<N>
-{
+impl<const N: usize> BinOp<Multiplication> for DihedralElement<N> {
     fn op(&self, rhs: &Self) -> Self {
         if rhs.flipped {
             DihedralElement {
@@ -68,8 +62,8 @@ mod test {
         let id = DihedralElement::<5>::id();
         let tau = DihedralElement::<5>::new(0, true);
         let sigma = DihedralElement::<5>::new(1, false);
-        assert_eq!(sigma * sigma * sigma * sigma, sigma.inv());
-        assert_eq!(tau * tau, id);
-        assert_eq!(tau * sigma * tau, sigma.inv());
+        assert_eq!(sigma.op(&sigma).op(&sigma).op(&sigma), sigma.inv());
+        assert_eq!(tau.op(&tau), id);
+        assert_eq!(tau.op(&sigma).op(&tau), sigma.inv());
     }
 }

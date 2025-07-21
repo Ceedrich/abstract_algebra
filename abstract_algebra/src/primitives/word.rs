@@ -1,38 +1,24 @@
-use abstract_algebra_macros::Operations;
-
-use crate::{
-    ops::{Associative, BinaryOperation, Identity, Invertible, Multiplication, NonCommutative},
-    utils::MathObject,
-};
+use crate::ops::{Associativity, BinOp, Identity, Invertible, Multiplication};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Alphabet<T> {
+pub enum Alphabet<T: Copy + Eq> {
     Fwd(T),
     Bwd(T),
 }
 
-impl<T> Alphabet<T>
-where
-    T: Clone,
-{
+impl<T: Copy + Eq> Alphabet<T> {
     pub fn inv(&self) -> Self {
         match self {
-            Self::Fwd(x) => Self::Bwd(x.clone()),
-            Self::Bwd(x) => Self::Fwd(x.clone()),
+            Self::Fwd(x) => Self::Bwd(*x),
+            Self::Bwd(x) => Self::Fwd(*x),
         }
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Operations)]
-#[operations("Multiplication")]
-pub struct Word<T>(Vec<Alphabet<T>>)
-where
-    T: Copy + MathObject;
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Word<T: Copy + Eq>(Vec<Alphabet<T>>);
 
-impl<T> Word<T>
-where
-    T: Copy + MathObject,
-{
+impl<T: Copy + Eq> Word<T> {
     fn reduce(v: Vec<Alphabet<T>>) -> Vec<Alphabet<T>> {
         let mut reduced = Vec::new();
         for sym in v.into_iter() {
@@ -48,20 +34,16 @@ where
     }
 }
 
-impl<T, const N: usize> From<&[Alphabet<T>; N]> for Word<T>
-where
-    T: Copy + MathObject,
-{
+impl<T: Copy + Eq, const N: usize> From<&[Alphabet<T>; N]> for Word<T> {
     fn from(value: &[Alphabet<T>; N]) -> Self {
         let word = Self::reduce(value.into());
         Self(word)
     }
 }
 
-impl<T> BinaryOperation<Multiplication, NonCommutative, Associative> for Word<T>
-where
-    T: Copy + MathObject,
-{
+impl<T: Copy + Eq> Associativity<Multiplication> for Word<T> {}
+
+impl<T: Copy + Eq> BinOp<Multiplication> for Word<T> {
     fn op(&self, y: &Self) -> Self {
         let mut word = self.0.clone();
         word.extend(y.0.clone());
@@ -69,19 +51,13 @@ where
     }
 }
 
-impl<T> Identity<Multiplication> for Word<T>
-where
-    T: Copy + MathObject,
-{
+impl<T: Copy + Eq> Identity<Multiplication> for Word<T> {
     fn id() -> Self {
         Self(vec![])
     }
 }
 
-impl<T> Invertible<Multiplication> for Word<T>
-where
-    T: Copy + MathObject,
-{
+impl<T: Copy + Eq> Invertible<Multiplication> for Word<T> {
     fn inv(&self) -> Self {
         Self(self.0.iter().rev().map(Alphabet::inv).collect())
     }
