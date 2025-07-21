@@ -1,6 +1,6 @@
 use quote::{ToTokens, quote};
 use syn::{
-    Attribute, DeriveInput, Ident, Lit, Meta, Token, TypePath,
+    Attribute, DeriveInput, Ident, Lit, Meta, Token, Type, TypePath,
     parse::{Parse, ParseStream},
     parse_macro_input,
     punctuated::Punctuated,
@@ -170,7 +170,7 @@ enum Accessor {
 
 struct Element {
     accessor: Accessor,
-    type_: Ident,
+    type_: Type,
 }
 
 struct MathTrait(TypePath);

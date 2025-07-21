@@ -1,5 +1,8 @@
 use std::ops::{Add, AddAssign, Mul, MulAssign};
 
+mod group_product;
+pub use group_product::*;
+
 use abstract_algebra_macros::Blub;
 
 use crate::{
@@ -8,19 +11,28 @@ use crate::{
         Addition, Associative, BinaryOperation, Commutative, Identity, Invertible, Multiplication,
         NonCommutative, OperationCommutativity, OperationKind,
     },
-    primitives::{CyclicNumber, Permutation, Word},
+    primitives::{CyclicNumber, DihedralElement, Permutation, Word},
 };
 
+/// A [Cyclic Group](https://en.wikipedia.org/wiki/Cyclic_group) of order `N`
 pub type Cyclic<const N: usize> = Group<CyclicNumber<N>, Addition, Commutative>;
+/// A [Symmetric Group](https://en.wikipedia.org/wiki/Symmetric_group) of order `N!`
 pub type Symmetric<const N: usize> = Group<Permutation<N>, Multiplication, NonCommutative>;
+/// A [Free Group](https://en.wikipedia.org/wiki/Free_group)
 pub type Free<T> = Group<Word<T>, Multiplication, NonCommutative>;
+/// A [Dihedral Group](https://en.wikipedia.org/wiki/Dihedral_group) for order `2N`
+pub type Dihedral<const N: usize> = Group<DihedralElement<N>, Multiplication, NonCommutative>;
 
+/// Defines a [group](https://en.wikipedia.org/wiki/Group_(mathematics)).
+///
+/// Do **NOT** implement this trait directly, instead use [Blub]
 pub trait GroupOperation<K, C>:
     BinaryOperation<K, C, Associative> + Identity<K> + Invertible<K>
 where
     K: OperationKind,
     C: OperationCommutativity,
 {
+    /// Returns the element multiplied (group operation) n times by itself.
     fn pow(&self, n: isize) -> Self {
         let mut x = Self::id();
         if n > 0 {
@@ -45,6 +57,10 @@ where
 {
 }
 
+/// A wrapper around a type implementing the [GroupOperation] trait.
+///
+/// Use this wrapper around your element to gain access to operators like [+](core::ops::Add) or
+/// [*](core::ops::Mul)
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Blub)]
 #[blub(
     accessor(.e : E),
@@ -75,17 +91,6 @@ where
             _kind: Default::default(),
             _commutativity: Default::default(),
         }
-    }
-    pub fn inv(&self) -> Self {
-        Self::new(self.e.inv())
-    }
-
-    pub fn op(&self, rhs: &Self) -> Self {
-        Self::new(self.e.op(&rhs.e))
-    }
-
-    pub fn id() -> Self {
-        Self::new(E::id())
     }
 
     pub fn pow(&self, n: isize) -> Self {
@@ -132,6 +137,7 @@ where
 impl_op! { impl<E, C> Mul ; mul : Group<E, Multiplication, C> ; where E: GroupOperation<Multiplication, C>, C: OperationCommutativity }
 impl_op_assign! { impl<E, C> MulAssign ; mul ; mul_assign: Group<E, Multiplication, C> ; where E: GroupOperation<Multiplication, C>, C: OperationCommutativity }
 
+/// Test function to verify that your implementation of a group satisfies the group axioms.
 #[cfg(test)]
 pub fn test_group_axioms<G, K, C>(elems: &[G])
 where
