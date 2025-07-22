@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use crate::private::{Marker, Seal};
 
 pub trait OperationKind: Seal + Marker {}
@@ -14,7 +16,7 @@ impl Seal for Addition {}
 impl Marker for Addition {}
 impl OperationKind for Addition {}
 
-pub trait BinOp<Op: OperationKind>: Sized + PartialEq + Eq + Clone {
+pub trait BinOp<Op: OperationKind>: Sized + PartialEq + Eq + Clone + Debug {
     fn op(&self, rhs: &Self) -> Self;
 }
 pub trait Associativity<Op: OperationKind>: BinOp<Op> {}
@@ -31,7 +33,7 @@ pub trait Identity<Op: OperationKind>: BinOp<Op> {
 #[cfg(test)]
 pub fn test_accociativity<T, K>(elems: &[T])
 where
-    T: Associativity<K>,
+    T: Associativity<K> + core::fmt::Debug,
     K: OperationKind,
 {
     for elems in elems.windows(3) {
@@ -45,7 +47,7 @@ where
 #[cfg(test)]
 pub fn test_commutativity<T, K>(elems: &[T])
 where
-    T: BinOp<K>,
+    T: BinOp<K> + core::fmt::Debug,
     K: OperationKind,
 {
     for elems in elems.windows(2) {

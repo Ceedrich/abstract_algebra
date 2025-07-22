@@ -41,9 +41,9 @@ impl<T: Copy + Eq, const N: usize> From<&[Alphabet<T>; N]> for Word<T> {
     }
 }
 
-impl<T: Copy + Eq> Associativity<Multiplication> for Word<T> {}
+impl<T: Copy + Eq + std::fmt::Debug> Associativity<Multiplication> for Word<T> {}
 
-impl<T: Copy + Eq> BinOp<Multiplication> for Word<T> {
+impl<T: Copy + Eq + std::fmt::Debug> BinOp<Multiplication> for Word<T> {
     fn op(&self, y: &Self) -> Self {
         let mut word = self.0.clone();
         word.extend(y.0.clone());
@@ -51,13 +51,13 @@ impl<T: Copy + Eq> BinOp<Multiplication> for Word<T> {
     }
 }
 
-impl<T: Copy + Eq> Identity<Multiplication> for Word<T> {
+impl<T: Copy + Eq + std::fmt::Debug> Identity<Multiplication> for Word<T> {
     fn id() -> Self {
         Self(vec![])
     }
 }
 
-impl<T: Copy + Eq> Invertible<Multiplication> for Word<T> {
+impl<T: Copy + Eq + std::fmt::Debug> Invertible<Multiplication> for Word<T> {
     fn inv(&self) -> Self {
         Self(self.0.iter().rev().map(Alphabet::inv).collect())
     }
@@ -67,15 +67,14 @@ impl<T: Copy + Eq> Invertible<Multiplication> for Word<T> {
 ///
 /// # Example
 /// ```rust
-/// use abstract_algebra::ops::Identity;
+/// use abstract_algebra::ops::{Identity, BinOp};
 /// use abstract_algebra::primitives::Word;
 /// use abstract_algebra::word;
-///
 /// let x = word!['a' 'b'- 'c'-];
 /// let y = word!['c' 'b' 'a'-];
 ///
 /// assert_eq!(word!('b' 'a' 'a'- 'b'-), Word::id());
-/// assert_eq!(x * y, Word::id())
+/// assert_eq!(x.op(&y), Word::id())
 /// ```
 #[macro_export]
 macro_rules! word {

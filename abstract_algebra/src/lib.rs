@@ -6,7 +6,7 @@
 //! ```rust
 //! use abstract_algebra::primitives::Permutation;
 //! use abstract_algebra::perm;
-//! use abstract_algebra::ops::{Identity, Invertible};
+//! use abstract_algebra::ops::{Identity, Invertible, BinOp};
 //!
 //! let id: Permutation<3> = Permutation::id();
 //! // Empty cycles are considered to be the identity
@@ -18,7 +18,7 @@
 //! // If the group is ambiguous, you can specify the size of the symmetric group
 //! assert_eq!(perm![3; (1 2 3)], perm![(1 2)(2 3)]);
 //! // Group Operations are also implemented
-//! assert_eq!(perm![3; (1 2)] * perm![(2 3)], perm![(1 2 3)] );
+//! assert_eq!(perm![3; (1 2)].op(&perm![(2 3)]), perm![(1 2 3)] );
 //! assert_eq!(perm![3; (1 2 3)].inv(), perm![(1 3 2)] );
 //! ```
 //!
@@ -40,6 +40,8 @@ pub mod ops;
 pub mod primitives;
 pub mod structures;
 mod utils;
+// mod actions;
+pub mod wrapper;
 
 pub use abstract_algebra_macros::*;
 

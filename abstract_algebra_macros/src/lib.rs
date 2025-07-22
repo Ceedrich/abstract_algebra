@@ -7,7 +7,13 @@ use syn::{
     spanned::Spanned,
 };
 
+mod algebra_derives;
 mod ops;
+
+#[proc_macro_derive(Algebra, attributes(algebra))]
+pub fn derive_algebra_traits(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    algebra_derives::derive_algebra(input)
+}
 
 #[proc_macro_derive(Operations, attributes(operations))]
 pub fn derive_operations(input: proc_macro::TokenStream) -> proc_macro::TokenStream {

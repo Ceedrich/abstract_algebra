@@ -1,88 +1,80 @@
-use crate::ops::{
-    Addition, Associativity, BinOp, Commutativity, Identity, Invertible, Multiplication,
+use crate::{
+    ops::{Addition, Associativity, BinOp, Commutativity, Identity, Invertible, Multiplication},
+    structures::{FractionField, Integrality},
+    wrapper::Wrapper,
 };
 
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
-pub struct Natural(usize);
+pub type Natural = Wrapper<usize>;
 
-impl From<usize> for Natural {
-    fn from(value: usize) -> Self {
-        Self(value)
-    }
-}
+pub type Rationals = FractionField<Integer>;
 
-impl Associativity<Multiplication> for Natural {}
-impl Associativity<Addition> for Natural {}
-impl Commutativity<Multiplication> for Natural {}
-impl Commutativity<Addition> for Natural {}
+impl Associativity<Multiplication> for usize {}
+impl Associativity<Addition> for usize {}
+impl Commutativity<Multiplication> for usize {}
+impl Commutativity<Addition> for usize {}
 
-impl BinOp<Addition> for Natural {
+impl BinOp<Addition> for usize {
     fn op(&self, rhs: &Self) -> Self {
-        Self(self.0 + rhs.0)
+        self + rhs
     }
 }
 
-impl BinOp<Multiplication> for Natural {
+impl BinOp<Multiplication> for usize {
     fn op(&self, rhs: &Self) -> Self {
-        Self(self.0 * rhs.0)
+        self * rhs
     }
 }
 
-impl Identity<Addition> for Natural {
+impl Identity<Addition> for usize {
     fn id() -> Self {
-        Self(0)
+        0
     }
 }
 
-impl Identity<Multiplication> for Natural {
+impl Identity<Multiplication> for usize {
     fn id() -> Self {
-        Self(1)
+        1
     }
 }
 
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
-pub struct Integer(isize);
+pub type Integer = Wrapper<isize>;
 
-impl From<isize> for Integer {
-    fn from(value: isize) -> Self {
-        Self(value)
-    }
-}
+impl Associativity<Addition> for isize {}
+impl Associativity<Multiplication> for isize {}
+impl Commutativity<Addition> for isize {}
+impl Commutativity<Multiplication> for isize {}
 
-impl Associativity<Addition> for Integer {}
-impl Associativity<Multiplication> for Integer {}
-impl Commutativity<Addition> for Integer {}
-impl Commutativity<Multiplication> for Integer {}
-
-impl BinOp<Addition> for Integer {
+impl BinOp<Addition> for isize {
     fn op(&self, rhs: &Self) -> Self {
-        Self(self.0 + rhs.0)
+        self + rhs
     }
 }
 
-impl BinOp<Multiplication> for Integer {
+impl BinOp<Multiplication> for isize {
     fn op(&self, rhs: &Self) -> Self {
-        Self(self.0 * rhs.0)
+        self * rhs
     }
 }
 
-impl Invertible<Addition> for Integer {
+impl Invertible<Addition> for isize {
     fn inv(&self) -> Self {
-        Self(-self.0)
+        -self
     }
 }
 
-impl Identity<Addition> for Integer {
+impl Identity<Addition> for isize {
     fn id() -> Self {
-        Self(0)
+        0
     }
 }
 
-impl Identity<Multiplication> for Integer {
+impl Identity<Multiplication> for isize {
     fn id() -> Self {
-        Self(1)
+        1
     }
 }
+
+impl Integrality for isize {}
 
 #[cfg(test)]
 mod test {
@@ -96,14 +88,14 @@ mod test {
     #[test]
     fn monoid() {
         fn _f() -> impl Monoid<Multiplication> {
-            Natural(1)
+            Natural::new(1)
         }
         fn _g() -> impl Monoid<Addition> {
-            Natural(1)
+            Natural::new(1)
         }
 
-        let one = Natural(1);
-        let two = Natural(2);
+        let one = Natural::new(1);
+        let two = Natural::new(2);
         assert_eq!(one * one, one);
         assert_eq!(one + one, two);
         assert_eq!(two * two, two + two);
@@ -112,7 +104,7 @@ mod test {
     #[test]
     fn ring() {
         fn _f() -> impl Ring {
-            Integer(1)
+            Integer::new(1)
         }
     }
 }
